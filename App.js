@@ -523,7 +523,7 @@ export default function App() {
         <Text style={{ fontSize: 12, lineHeight: 18, color: T.dim, textAlign: "center", marginTop: 28 }}>
           Gentle self-help practices — not therapy or medical advice.{"\n"}
           Go at your own pace, move within a comfortable range, and stop if a practice feels overwhelming or painful.{"\n"}
-          If you're in crisis or thinking of harming yourself, please contact a crisis line or emergency services — reaching out is a sign of strength.{"\n"}
+          If you're in crisis or thinking of harming yourself, please contact a crisis line or emergency services.{"\n"}
           Your journal is stored only on this device.
         </Text>
 
