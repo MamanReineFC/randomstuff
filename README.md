@@ -31,3 +31,9 @@ Then open http://localhost:8081.
 ## A note
 
 These are gentle self-help practices — not therapy or medical advice. Go at your own pace, and stop if a practice feels overwhelming. If you're in crisis or thinking of harming yourself, please contact a crisis line or emergency services.
+
+## License & copyright
+
+Copyright &copy; 2026 FC. All rights reserved.
+
+This project's source is public for reference only. See the [LICENSE](LICENSE) file — no reuse or redistribution is permitted without written consent.

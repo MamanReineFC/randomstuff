@@ -1,3 +1,6 @@
+// Wellness Deck
+// Copyright (c) 2026 FC. All rights reserved. See LICENSE.
+
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import {
   SafeAreaView, ScrollView, View, Text, TextInput, Pressable,
