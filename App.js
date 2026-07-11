@@ -330,7 +330,7 @@ export default function App() {
 
         {/* Deck / Journal tabs */}
         <View style={{ flexDirection: "row", justifyContent: "center", gap: 16, marginVertical: 14 }}>
-          {[["deck", "Deck"], ["journal", `Journal${entries.length ? " · " + entries.length : ""}`]].map(([k, label]) => (
+          {[["deck", "Deck"], ["journal", "Journal"]].map(([k, label]) => (
             <Pressable key={k} onPress={() => setView(k)}
               style={{ borderBottomWidth: 2, borderBottomColor: view === k ? T.ink : "transparent", paddingBottom: 4 }}>
               <Text style={{ fontSize: 15, fontWeight: "600", color: view === k ? T.ink : T.dim }}>{label}</Text>
@@ -365,9 +365,6 @@ export default function App() {
                 {current ? "Draw another card" : "Draw a card"}
               </Text>
             </Pressable>
-            <Text style={{ textAlign: "center", fontSize: 12, color: T.dim, marginBottom: 20 }}>
-              {pool.length} cards in this stack
-            </Text>
 
             {/* Card */}
             {current && (
