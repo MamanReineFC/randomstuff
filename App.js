@@ -33,7 +33,7 @@ const SOURCES = {
 // ---------- Four simplified categories ----------
 // Every card is mapped onto one of four groups, then each group is capped
 // so the deck stays focused.
-const CATS = ["CBT", "Somatic", "Grounding/Self-Compassion", "Mindfulness/Breathing"];
+const CATS = ["All", "CBT", "Somatic", "Grounding/Self-Compassion", "Mindfulness/Breathing"];
 const CAT_MAP = {
   // CBT
   "Cognitive Restructuring": "CBT",
@@ -91,6 +91,7 @@ const T = {
 
 // Accent color for each of the four categories
 const CAT_COLOR = {
+  "All": "#5E6B66",
   "CBT": "#4E6E8E",
   "Somatic": "#6E7F5A",
   "Grounding/Self-Compassion": "#8E6B77",
@@ -236,7 +237,7 @@ function CardTimer({ minutes, accent }) {
 
 export default function App() {
   const [view, setView] = useState("deck");
-  const [cat, setCat] = useState("CBT");
+  const [cat, setCat] = useState("All");
   const [current, setCurrent] = useState(null);
   const [done, setDone] = useState({});
   const [note, setNote] = useState("");
@@ -250,7 +251,7 @@ export default function App() {
   const cats = useMemo(() => CATS, []);
 
   const pool = useMemo(
-    () => ALL_EXERCISES.filter(e => e.cat === cat),
+    () => ALL_EXERCISES.filter(e => cat === "All" || e.cat === cat),
     [cat]
   );
 
