@@ -320,7 +320,8 @@ export default function App() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: T.bg }}>
       <StatusBar barStyle="dark-content" />
-      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 48 }}>
+      <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 48, alignItems: "center" }}>
+       <View style={{ width: "100%", maxWidth: 640 }}>
 
         {/* Header */}
         <Text style={[styles.eyebrow, { color: T.dim }]}>One card · a few minutes · whatever today needs</Text>
@@ -528,6 +529,7 @@ export default function App() {
         <Text style={{ fontSize: 11, color: T.dim, textAlign: "center", marginTop: 10 }}>
           © 2026 FC · All rights reserved
         </Text>
+       </View>
       </ScrollView>
     </SafeAreaView>
   );
