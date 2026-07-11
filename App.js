@@ -368,7 +368,7 @@ export default function App() {
             </Text>
 
             {/* Card */}
-            {current ? (
+            {current && (
               <View style={{
                 backgroundColor: T.card, borderRadius: 16, borderWidth: 1,
                 borderColor: T.border, overflow: "hidden",
@@ -463,16 +463,6 @@ export default function App() {
                     <Text style={{ color: "#9A4F4F", fontSize: 13, marginTop: 8 }}>Couldn't save. Try again.</Text>
                   )}
                 </View>
-              </View>
-            ) : (
-              <View style={{
-                borderWidth: 1.5, borderStyle: "dashed", borderColor: T.border,
-                borderRadius: 16, padding: 32, alignItems: "center",
-              }}>
-                <Text style={{ fontSize: 15, color: T.dim, textAlign: "center", lineHeight: 22 }}>
-                  {ALL_EXERCISES.length} cards across three practice traditions.{"\n"}
-                  Draw from everything, or narrow to a category.
-                </Text>
               </View>
             )}
           </>
