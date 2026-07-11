@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Wellbeing Decks — CBT · Somatic · C-PTSD</title>
+<meta name="description" content="A gentle self-help card deck: CBT, Somatic, and C-PTSD practices with a private journal." />
+<style>
+  html,body{margin:0;padding:0;background:#ECEFE8;}
+  *{-webkit-tap-highlight-color:transparent;}
+  button:focus-visible,textarea:focus-visible{outline:2px solid #272B24;outline-offset:2px;}
+  @keyframes breathe{0%{transform:scale(0.8);}40%{transform:scale(1.15);}50%{transform:scale(1.15);}95%{transform:scale(0.8);}100%{transform:scale(0.8);}}
+  .pacer{animation:breathe 16s ease-in-out infinite;}
+  @media (prefers-reduced-motion: reduce){.pacer{animation:none;}}
+</style>
+<script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.24.7/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<noscript>This app needs JavaScript enabled.</noscript>
+<script type="text/babel" data-presets="react">
+const CBT_EXERCISES = [
+  { id: 1, cat: "Cognitive Restructuring", mins: 10, title: "Thought Record",
+    why: "Catching a hot thought and examining it on paper weakens its automatic grip.",
+    steps: [
+      "Describe the situation in one neutral sentence (who, what, where).",
+      "Write the automatic thought that flashed through your mind.",
+      "Rate how much you believe it, 0–100%.",
+      "List evidence that supports the thought — facts only.",
+      "List evidence that doesn't support it — facts only.",
+      "Write a balanced alternative thought that accounts for both lists.",
+      "Re-rate your belief in the original thought.",
+    ]},
+  { id: 2, cat: "Cognitive Restructuring", mins: 5, title: "Name the Distortion",
+    why: "Labeling a thinking pattern creates distance from it.",
+    steps: [
+      "Recall a recent upsetting thought.",
+      "Check it against common distortions: all-or-nothing, catastrophizing, mind reading, fortune telling, labeling, 'should' statements, emotional reasoning, personalization.",
+      "Name every distortion that fits.",
+      "Rewrite the thought with the distortion removed.",
+    ]},
+  { id: 3, cat: "Cognitive Restructuring", mins: 7, title: "Decatastrophizing Ladder",
+    why: "Worry usually stops at the scariest image. Walking past it shrinks it.",
+    steps: [
+      "Write the feared outcome you keep imagining.",
+      "Ask: realistically, what's the worst that could happen?",
+      "Then: what's the best that could happen?",
+      "Then: what's the most likely outcome?",
+      "If the worst did happen, what would you actually do the next day? The next week?",
+      "Notice how the feared event looks after mapping all three paths.",
+    ]},
+  { id: 4, cat: "Cognitive Restructuring", mins: 5, title: "The Friend Test",
+    why: "We hold ourselves to standards we'd never impose on people we love.",
+    steps: [
+      "Write down the critical thought you're having about yourself.",
+      "Imagine a close friend told you they were thinking this about themselves.",
+      "Write, word for word, what you would say to them.",
+      "Read your reply out loud, addressed to yourself.",
+    ]},
+  { id: 5, cat: "Cognitive Restructuring", mins: 8, title: "Pie Chart of Responsibility",
+    why: "Personalization assigns you 100% of the blame. Reality rarely does.",
+    steps: [
+      "Name an outcome you're blaming yourself for.",
+      "List every factor that contributed — people, circumstances, chance.",
+      "Assign each factor a slice of a 100% pie, saving your slice for last.",
+      "Look at the slice that's actually yours. Respond to that, not the whole pie.",
+    ]},
+  { id: 6, cat: "Cognitive Restructuring", mins: 6, title: "Double Standard Reversal",
+    why: "Rules applied only to yourself aren't standards — they're self-attacks.",
+    steps: [
+      "Write a rule you hold yourself to ('I must never make mistakes at work').",
+      "Ask: do I apply this rule to colleagues or friends?",
+      "If not, write the rule you actually apply to others.",
+      "Adopt the other-person version for yourself for one day.",
+    ]},
+  { id: 7, cat: "Cognitive Restructuring", mins: 6, title: "Continuum Thinking",
+    why: "All-or-nothing labels ignore the entire middle of the scale.",
+    steps: [
+      "Write the black-and-white label you've given yourself ('failure', 'lazy').",
+      "Draw a 0–100 scale for that trait.",
+      "Define what a true 0 and a true 100 would look like — extreme, real examples.",
+      "Place yourself honestly on the scale.",
+      "Notice the distance between your placement and the label.",
+    ]},
+  { id: 8, cat: "Behavioral Activation", mins: 15, title: "Five-Minute Start",
+    why: "Motivation follows action more often than it precedes it.",
+    steps: [
+      "Pick one task you've been avoiding.",
+      "Commit to exactly five minutes — set a timer.",
+      "Before starting, rate your predicted enjoyment and accomplishment, 0–10.",
+      "Do the five minutes. Stopping after is genuinely allowed.",
+      "Rate the actual enjoyment and accomplishment. Compare with your prediction.",
+    ]},
+  { id: 9, cat: "Behavioral Activation", mins: 10, title: "Values-to-Action Map",
+    why: "Low mood shrinks life to obligations. This reconnects action to what matters.",
+    steps: [
+      "Write down three things you value (e.g., friendship, learning, health).",
+      "For each, write one action smaller than 15 minutes that expresses it.",
+      "Schedule one of the three for today — an exact time, in your calendar.",
+      "After doing it, note your mood before and after, 0–10.",
+    ]},
+  { id: 10, cat: "Behavioral Activation", mins: 5, title: "Activity Menu",
+    why: "Deciding what to do is hardest when you feel low. Decide now, in advance.",
+    steps: [
+      "List four activities that used to give you pleasure.",
+      "List four that give you a sense of mastery or accomplishment.",
+      "List two that connect you with another person.",
+      "Keep the list somewhere visible. When mood drops, pick from it instead of deciding from scratch.",
+    ]},
+  { id: 11, cat: "Behavioral Activation", mins: 20, title: "Opposite Action Walk",
+    why: "When mood says withdraw, doing the opposite tests whether the mood is right.",
+    steps: [
+      "Notice the urge (stay in, cancel, scroll).",
+      "Name the emotion driving it.",
+      "Do the opposite for 20 minutes: go outside, walk somewhere with people or nature.",
+      "While walking, name five things you can see and three you can hear.",
+      "Rate your mood before and after.",
+    ]},
+  { id: 12, cat: "Behavioral Activation", mins: 10, title: "Micro-Scheduling Tomorrow",
+    why: "An unstructured day hands the wheel to mood. Light structure takes it back.",
+    steps: [
+      "Write tomorrow's three anchor points: wake time, one meal, one activity.",
+      "Add one pleasant activity and one mastery activity, each under 20 minutes.",
+      "Attach each to a time, not a vague 'sometime'.",
+      "Tomorrow evening, mark what happened — done counts even if imperfect.",
+    ]},
+  { id: 13, cat: "Behavioral Activation", mins: 8, title: "Anti-Avoidance Swap",
+    why: "Avoidance relieves now and costs later. Making the trade visible changes it.",
+    steps: [
+      "Name one thing you avoided this week.",
+      "Write what the avoidance gave you in the moment (relief, distraction).",
+      "Write what it cost you afterward (guilt, pile-up, missed chance).",
+      "Choose one 10-minute step toward the avoided thing and do it now.",
+    ]},
+  { id: 14, cat: "Exposure & Testing", mins: 10, title: "Behavioral Experiment Design",
+    why: "Anxious predictions survive because they're never tested.",
+    steps: [
+      "Write a specific anxious prediction ('If I ask a question in the meeting, people will think I'm stupid').",
+      "Rate how strongly you believe it, 0–100%.",
+      "Design a small, safe test you could run this week.",
+      "Predict exactly what would count as the feared outcome happening.",
+      "Run the experiment, then record what actually happened.",
+      "Re-rate the belief.",
+    ]},
+  { id: 15, cat: "Exposure & Testing", mins: 10, title: "Fear Ladder",
+    why: "Avoidance keeps fear fresh. A graded ladder makes approach manageable.",
+    steps: [
+      "Name one situation you avoid.",
+      "Brainstorm 8–10 versions of it, from mildly to very uncomfortable.",
+      "Rate each 0–100 for anticipated anxiety and sort into a ladder.",
+      "Pick the lowest rung you haven't done and schedule it.",
+      "Stay in the situation until anxiety drops by about half before leaving.",
+    ]},
+  { id: 16, cat: "Exposure & Testing", mins: 5, title: "Drop One Safety Behavior",
+    why: "Safety behaviors (rehearsing, avoiding eye contact, over-checking) quietly maintain anxiety.",
+    steps: [
+      "Identify one thing you do to feel safe in an anxious situation.",
+      "Next time the situation arises, deliberately skip it — just that one.",
+      "Predict what will happen without it.",
+      "Afterward, compare prediction with reality.",
+    ]},
+  { id: 17, cat: "Exposure & Testing", mins: 8, title: "Prediction Accuracy Review",
+    why: "Anxiety is a poor forecaster. Auditing its track record loosens its authority.",
+    steps: [
+      "List three past events you dreaded in advance.",
+      "For each, write what anxiety predicted would happen.",
+      "Write what actually happened.",
+      "Score anxiety's forecast accuracy out of 3.",
+      "Write one sentence about how much weight its next forecast deserves.",
+    ]},
+  { id: 18, cat: "Grounding & Emotion", mins: 5, title: "5-4-3-2-1 Grounding",
+    why: "Anchoring attention in the senses interrupts spiraling thoughts.",
+    steps: [
+      "Name 5 things you can see.",
+      "Name 4 things you can physically feel.",
+      "Name 3 things you can hear.",
+      "Name 2 things you can smell.",
+      "Name 1 thing you can taste.",
+      "Take one slow breath and notice where your attention is now.",
+    ]},
+  { id: 19, cat: "Grounding & Emotion", mins: 5, title: "Paced Breathing (4-6)",
+    why: "A longer exhale than inhale activates the body's calming response.",
+    steps: [
+      "Sit comfortably; drop your shoulders.",
+      "Inhale through the nose for a count of 4.",
+      "Exhale slowly through the mouth for a count of 6.",
+      "Repeat for ten cycles.",
+      "Rate your body tension before and after, 0–10.",
+    ]},
+  { id: 20, cat: "Grounding & Emotion", mins: 7, title: "Emotion Labeling",
+    why: "Naming an emotion precisely reduces its intensity — 'name it to tame it'.",
+    steps: [
+      "Pause and scan: what am I feeling right now?",
+      "Go beyond 'bad': is it disappointment, dread, resentment, embarrassment, grief?",
+      "Locate where you feel it in your body.",
+      "Rate intensity 0–10.",
+      "Complete the sentence: 'I notice I'm having the feeling of ___' — and let it be there for 60 seconds.",
+    ]},
+  { id: 21, cat: "Grounding & Emotion", mins: 10, title: "Worry Time Appointment",
+    why: "Scheduling worry contains it, instead of letting it leak across the whole day.",
+    steps: [
+      "Choose a daily 15-minute 'worry appointment' (not within 2 hours of bed).",
+      "When a worry appears outside that window, jot one line and postpone it.",
+      "At the appointment, review the list.",
+      "For each worry: solvable or not? Solvable → one next step. Not solvable → acknowledge and set down.",
+    ]},
+  { id: 22, cat: "Grounding & Emotion", mins: 6, title: "Progressive Release (Short Form)",
+    why: "Tension the body holds keeps the mind on alert. Releasing it signals safety.",
+    steps: [
+      "Clench both fists for 5 seconds, then release for 10. Notice the difference.",
+      "Repeat with shoulders raised to your ears.",
+      "Repeat with your jaw gently clenched.",
+      "Repeat with your stomach tensed.",
+      "End with one slow exhale, letting everything stay loose.",
+    ]},
+  { id: 23, cat: "Grounding & Emotion", mins: 5, title: "Urge Surfing",
+    why: "Urges crest and fall like waves. Riding one out proves you don't have to obey it.",
+    steps: [
+      "Notice an urge (to check, snack, snap, scroll) without acting.",
+      "Rate its intensity 0–10.",
+      "Describe it physically: where is it, what does it feel like?",
+      "Watch it for two minutes, re-rating every 30 seconds.",
+      "Note what the wave did without your help.",
+    ]},
+  { id: 24, cat: "Self-Monitoring", mins: 5, title: "Positive Data Log",
+    why: "Negative beliefs filter out disconfirming evidence. This collects it deliberately.",
+    steps: [
+      "Write a negative core belief you struggle with ('I'm incompetent').",
+      "Write its balanced alternative ('I'm capable in many situations').",
+      "List three things from the past 48 hours — however small — that fit the alternative.",
+      "Repeat daily; the log only works cumulatively.",
+    ]},
+  { id: 25, cat: "Self-Monitoring", mins: 5, title: "Mood-Thought-Action Snapshot",
+    why: "The CBT triangle in miniature: seeing the links is the first step to changing them.",
+    steps: [
+      "Rate your mood right now, 0–10, and name the dominant emotion.",
+      "Write the thought most present in your mind.",
+      "Write what you were doing when you noticed it.",
+      "Ask: which of the three (thought, feeling, action) is easiest to shift right now? Shift it slightly.",
+    ]},
+  { id: 26, cat: "Self-Monitoring", mins: 8, title: "Should Audit",
+    why: "'Should' statements convert preferences into laws and generate guilt.",
+    steps: [
+      "For one hour, note every 'should', 'must', or 'have to' you say or think.",
+      "Pick the three most frequent.",
+      "Rewrite each as a preference: 'I'd like to…' or 'It would help me to…'.",
+      "Say both versions aloud and notice the difference in pressure.",
+    ]},
+  { id: 27, cat: "Self-Monitoring", mins: 6, title: "Rumination Interrupt",
+    why: "Rumination feels like problem-solving but produces no solutions.",
+    steps: [
+      "When you catch yourself looping, ask: 'Have I learned anything new in the last two minutes?'",
+      "If no: label it — 'this is rumination, not thinking'.",
+      "Ask one forward question: 'What's one thing I can do about this today?'",
+      "If there's an answer, write it down. If not, redirect attention to a concrete task for 10 minutes.",
+    ]},
+  { id: 28, cat: "Self-Monitoring", mins: 5, title: "Three Good Things",
+    why: "Attention trained on what went right rebalances a mind biased toward threat.",
+    steps: [
+      "Write three things that went well today, however small.",
+      "For each, write one sentence about your role in it.",
+      "Notice any urge to discount them ('that doesn't count') — and name it.",
+    ]},
+  { id: 29, cat: "Self-Monitoring", mins: 7, title: "Trigger Map",
+    why: "Moods that seem to come from nowhere usually have findable starting points.",
+    steps: [
+      "Think of the last time your mood dropped suddenly.",
+      "Rewind: what happened in the 30 minutes before? Include small things — a message, a memory, a song.",
+      "Write the likely trigger and the first thought it produced.",
+      "Note the pattern to watch for next time.",
+    ]},
+  { id: 30, cat: "Self-Monitoring", mins: 6, title: "Attention Spotlight Check",
+    why: "What you attend to becomes your reality. This audits where the spotlight points.",
+    steps: [
+      "Pause and ask: where has my attention been for the past hour?",
+      "Estimate the split: past events / future worries / the present task.",
+      "Choose one present-moment anchor (breath, sounds, the task in front of you).",
+      "Hold the spotlight there for two minutes.",
+    ]},
+];
+const SOMATIC_EXERCISES = [
+  { id: 1, cat: "Breathwork", mins: 5, breath: true, title: "Extended Exhale",
+    why: "A longer out-breath than in-breath cues the nervous system toward rest.",
+    steps: [
+      "Sit or lie down; let your shoulders drop.",
+      "Inhale gently through the nose for a count of 4.",
+      "Exhale slowly through pursed lips for a count of 8.",
+      "Repeat for 8–10 cycles, following the pacer if it helps.",
+      "Notice one place in your body that feels different afterward.",
+    ]},
+  { id: 2, cat: "Breathwork", mins: 5, breath: true, title: "Box Breathing",
+    why: "Equal-sided breathing gives the mind a simple shape to rest on.",
+    steps: [
+      "Inhale through the nose for 4 counts.",
+      "Hold gently for 4 counts — no straining.",
+      "Exhale for 4 counts.",
+      "Hold empty for 4 counts.",
+      "Repeat for 6–8 rounds. If holds feel uncomfortable, shorten them or skip them.",
+    ]},
+  { id: 3, cat: "Breathwork", mins: 4, breath: true, title: "Physiological Sigh",
+    why: "Two quick inhales followed by a long sigh is the body's own built-in reset.",
+    steps: [
+      "Take a deep breath in through the nose.",
+      "At the top, take a second short sip of air.",
+      "Let it all out through the mouth in one long, audible sigh.",
+      "Repeat 3–5 times.",
+      "Pause and notice your shoulders and jaw.",
+    ]},
+  { id: 4, cat: "Breathwork", mins: 6, title: "Belly Breath with Hands",
+    why: "Touch gives the breath somewhere concrete to land.",
+    steps: [
+      "Place one hand on your chest, one on your belly.",
+      "Breathe so the belly hand rises more than the chest hand.",
+      "Keep the breath slow and quiet — no forcing.",
+      "Continue for 2–3 minutes.",
+      "Notice which hand moved more by the end.",
+    ]},
+  { id: 5, cat: "Breathwork", mins: 5, title: "Counting the Breath",
+    why: "Counting gives wandering attention a gentle job to return to.",
+    steps: [
+      "Breathe naturally; count each exhale: one, two… up to ten.",
+      "At ten, start again at one.",
+      "When you lose count (you will), simply restart at one without commentary.",
+      "Continue for five minutes.",
+    ]},
+  { id: 6, cat: "Body Awareness", mins: 10, title: "Three-Zone Body Scan",
+    why: "Sweeping attention through the body surfaces tension you didn't know you were holding.",
+    steps: [
+      "Settle into a comfortable position and close or soften your eyes.",
+      "Zone 1 — head to shoulders: notice forehead, eyes, jaw, neck. Just observe.",
+      "Zone 2 — torso and arms: chest, belly, back, hands. Notice temperature, contact, movement.",
+      "Zone 3 — hips to feet: notice weight, pressure, tingling, stillness.",
+      "Finish with three breaths sensing the whole body at once.",
+    ]},
+  { id: 7, cat: "Body Awareness", mins: 5, title: "Tension Inventory",
+    why: "Chronic tension hides in the same few places. Finding yours makes release possible.",
+    steps: [
+      "Scan for your personal tension spots: jaw, tongue, shoulders, hands, belly, glutes.",
+      "Rate each spot 0–10 for tightness.",
+      "Choose the tightest one and exhale into it three times, imagining it softening 10%.",
+      "Re-rate. Partial release counts.",
+    ]},
+  { id: 8, cat: "Body Awareness", mins: 6, title: "Interoception Check-In",
+    why: "Sensing internal signals — hunger, heartbeat, warmth — rebuilds trust between mind and body.",
+    steps: [
+      "Sit quietly and ask: what can I feel from the inside right now?",
+      "Notice heartbeat or pulse, without touching your wrist. Can you find it?",
+      "Notice hunger or fullness, thirst, temperature, energy level.",
+      "Name three internal sensations in plain words ('warm hands', 'tight chest', 'settled stomach').",
+    ]},
+  { id: 9, cat: "Body Awareness", mins: 8, title: "Pain/Sensation Reframe",
+    why: "Describing sensation precisely, without the story, often changes how it feels.",
+    steps: [
+      "Choose an uncomfortable (not acute) sensation.",
+      "Describe it only in sensory words: pressure, heat, pulsing, tingling — no 'bad', no 'why'.",
+      "Notice its exact edges: where does it start and stop?",
+      "Watch for 60 seconds: does it stay identical, or shift?",
+      "Note what changed, if anything.",
+    ]},
+  { id: 10, cat: "Body Awareness", mins: 5, title: "Weight and Support",
+    why: "Feeling what already holds you is the fastest route out of a busy head.",
+    steps: [
+      "Notice every point where your body touches something: feet, seat, back, hands.",
+      "Pick the point with the most contact and rest attention there.",
+      "Let that surface fully take your weight — stop helping it.",
+      "Say silently: 'I am held up. I don't have to do it.'",
+      "Stay for ten slow breaths.",
+    ]},
+  { id: 11, cat: "Movement & Release", mins: 6, title: "Progressive Muscle Release",
+    why: "Deliberate tensing teaches the body what letting go actually feels like.",
+    steps: [
+      "Clench both fists for 5 seconds; release for 10. Feel the contrast.",
+      "Raise shoulders to ears for 5; release for 10.",
+      "Gently clench the jaw for 5; release for 10.",
+      "Tense the belly for 5; release for 10.",
+      "Press feet into the floor for 5; release for 10.",
+      "End with one long exhale, keeping everything loose.",
+    ]},
+  { id: 12, cat: "Movement & Release", mins: 5, title: "Shake It Out",
+    why: "Rhythmic shaking discharges the activation that stress leaves in the muscles.",
+    steps: [
+      "Stand with knees soft.",
+      "Start bouncing gently through the heels.",
+      "Let the shaking spread: hands, arms, shoulders, jaw loose.",
+      "Continue for 2–3 minutes; let it be a little silly.",
+      "Stop, stand still, close your eyes, and feel the buzzing settle.",
+    ]},
+  { id: 13, cat: "Movement & Release", mins: 6, title: "Slow Neck & Shoulder Unwind",
+    why: "The neck and shoulders carry vigilance. Slow movement tells them the watch is over.",
+    steps: [
+      "Drop your right ear toward your right shoulder; breathe there for three breaths.",
+      "Repeat on the left.",
+      "Roll both shoulders backward five times, slower than feels natural.",
+      "Let your chin drift toward your chest; hang for three breaths.",
+      "Return upright and notice the difference. Stop if anything pinches.",
+    ]},
+  { id: 14, cat: "Movement & Release", mins: 8, title: "Mindful Walking (Indoors Counts)",
+    why: "Walking at half speed turns an automatic act back into a felt experience.",
+    steps: [
+      "Find 10 steps of space; walk at half your normal pace.",
+      "Feel each phase: heel lands, weight rolls, toes push off.",
+      "When you reach the end, pause, turn slowly, continue.",
+      "When the mind wanders, return to the soles of the feet.",
+      "Continue for 5 minutes.",
+    ]},
+  { id: 15, cat: "Movement & Release", mins: 5, title: "Open the Front Body",
+    why: "Hunching signals threat to the body; opening the chest signals safety.",
+    steps: [
+      "Stand or sit tall; interlace fingers behind your back (or hold a strap/towel).",
+      "Gently draw hands down and back, lifting the chest.",
+      "Take five slow breaths into the front of the body.",
+      "Release, then notice your posture and mood.",
+    ]},
+  { id: 16, cat: "Sensory Grounding", mins: 5, title: "5-4-3-2-1 Senses",
+    why: "Anchoring in the five senses interrupts spirals by giving attention real ground.",
+    steps: [
+      "Name 5 things you can see.",
+      "Name 4 things you can physically feel.",
+      "Name 3 things you can hear.",
+      "Name 2 things you can smell.",
+      "Name 1 thing you can taste.",
+      "Take one slow breath and notice where you are now.",
+    ]},
+  { id: 17, cat: "Sensory Grounding", mins: 4, title: "Cold Water Hands",
+    why: "A strong, safe sensation gives the nervous system something present to organize around.",
+    steps: [
+      "Run comfortably cool water over your hands and wrists for 30 seconds.",
+      "Track the sensation precisely: temperature, pressure, where it starts and fades.",
+      "Dry your hands slowly, feeling the towel's texture.",
+      "Notice your breath — has it changed on its own?",
+    ]},
+  { id: 18, cat: "Sensory Grounding", mins: 5, title: "One Object, Full Attention",
+    why: "Ordinary objects become anchors when examined like you've never seen one before.",
+    steps: [
+      "Pick up any small object nearby.",
+      "Explore it for two minutes: weight, temperature, texture, sound when tapped, every visual detail.",
+      "Each time the mind drifts to something else, return to one physical detail.",
+      "Set it down as slowly as you picked it up.",
+    ]},
+  { id: 19, cat: "Sensory Grounding", mins: 6, title: "Soundscape Listening",
+    why: "Listening without labeling rests the part of the mind that narrates everything.",
+    steps: [
+      "Close or soften your eyes and just listen.",
+      "Find the farthest sound you can detect.",
+      "Find the closest sound — maybe your own breath.",
+      "Let sounds arrive and pass without naming or judging them.",
+      "Continue for 3–5 minutes.",
+    ]},
+  { id: 20, cat: "Sensory Grounding", mins: 4, title: "Feet on Floor",
+    why: "The feet are the body's simplest anchor point — always available, always present.",
+    steps: [
+      "Place both feet flat on the ground, shoes off if possible.",
+      "Press down slightly and feel all four corners of each foot.",
+      "Imagine roots or weight traveling downward with each exhale.",
+      "Stay for ten breaths, attention resting in the soles.",
+    ]},
+  { id: 21, cat: "Mindful Attention", mins: 10, title: "Anchor Practice",
+    why: "Choosing one anchor and returning to it, again and again, is the core rep of mindfulness.",
+    steps: [
+      "Choose one anchor: breath at the nostrils, belly movement, or sounds.",
+      "Rest attention there.",
+      "When the mind wanders, note 'wandering' — kindly, like noticing weather.",
+      "Return to the anchor. The return IS the practice, not a failure of it.",
+      "Continue for 10 minutes.",
+    ]},
+  { id: 22, cat: "Mindful Attention", mins: 5, title: "Thoughts as Traffic",
+    why: "Watching thoughts pass, instead of boarding each one, builds the observer's seat.",
+    steps: [
+      "Sit and imagine standing beside a road; thoughts are passing vehicles.",
+      "When a thought comes, note its type — planning, remembering, judging — and let it drive on.",
+      "If you find yourself inside a vehicle (lost in thought), step back to the roadside.",
+      "Continue for 5 minutes. Heavy traffic is fine; your job is only to watch.",
+    ]},
+  { id: 23, cat: "Mindful Attention", mins: 5, title: "Mindful First Sip",
+    why: "One fully-experienced sip contains more presence than a hundred automatic ones.",
+    steps: [
+      "Make or pour any drink.",
+      "Before drinking, notice its warmth or coolness through the cup, its color, its smell.",
+      "Take one sip and keep it in your mouth a moment longer than usual.",
+      "Track the taste as it changes and fades.",
+      "Take three more sips at this speed.",
+    ]},
+  { id: 24, cat: "Mindful Attention", mins: 6, title: "Open Awareness",
+    why: "Letting attention rest wide, without a target, reveals how much is happening in the present.",
+    steps: [
+      "Sit comfortably; take three settling breaths.",
+      "Let attention open like a wide lens — no chosen object.",
+      "Whatever arises — sound, sensation, thought — let it appear and dissolve on its own.",
+      "If you get pulled into any one thing, gently widen the lens again.",
+      "Continue for 5 minutes.",
+    ]},
+  { id: 25, cat: "Mindful Attention", mins: 4, title: "Three-Breath Reset",
+    why: "A micro-practice you can run anywhere: three breaths, three jobs.",
+    steps: [
+      "Breath one: notice you're breathing. That's all.",
+      "Breath two: relax something — jaw, shoulders, hands.",
+      "Breath three: ask 'what matters right now?' and let the answer surface.",
+      "Return to your day, slightly more here than before.",
+    ]},
+  { id: 26, cat: "Mindful Attention", mins: 8, title: "Kind Attention (Self)",
+    why: "Directing warmth inward counters the harsh tone most inner voices default to.",
+    steps: [
+      "Place a hand on your chest or wherever feels comforting.",
+      "Notice the warmth and slight pressure of the hand.",
+      "Silently offer: 'May I be at ease. May I be kind to myself in this moment.'",
+      "If resistance comes up, notice it without fighting — it's allowed to be there.",
+      "Continue for a few minutes, staying with the physical warmth as the anchor.",
+    ]},
+  { id: 27, cat: "Body Awareness", mins: 5, title: "Orienting",
+    why: "Slowly looking around the room tells an alert nervous system there is no threat here.",
+    steps: [
+      "Let your eyes wander slowly around the space, without a goal.",
+      "Let them land on anything pleasant or neutral; rest there a few seconds.",
+      "Turn your head and neck as you look — slow, curious, unhurried.",
+      "Notice any spontaneous breath, swallow, or settling. Those are good signs.",
+    ]},
+  { id: 28, cat: "Movement & Release", mins: 7, title: "Micro-Stretch Circuit",
+    why: "Small, slow stretches done with attention count as both movement and mindfulness.",
+    steps: [
+      "Reach both arms overhead; stretch through the fingertips for three breaths.",
+      "Fold gently forward, knees bent, and hang for three breaths.",
+      "Roll up one vertebra at a time.",
+      "Twist gently to each side, three breaths per side.",
+      "Stand still and feel the after-effects before moving on. Skip anything that hurts.",
+    ]},
+  { id: 29, cat: "Breathwork", mins: 4, breath: true, title: "Arms Rise & Fall Breath",
+    why: "Syncing breath with movement gives both something to hold onto.",
+    steps: [
+      "Stand or sit comfortably.",
+      "As you slowly breathe in, raise your arms overhead.",
+      "As you exhale, gently lower them back down.",
+      "Repeat, moving slowly and with awareness, syncing breath and movement.",
+      "Notice: how does your body feel as you move with your breath? Does raising your arms shift your energy?",
+    ]},
+  { id: 30, cat: "Breathwork", mins: 4, title: "Humming & Toning",
+    why: "Vocal vibration extends the exhale and can be felt directly in the body.",
+    steps: [
+      "Close your eyes and take a deep breath.",
+      "Hum or say 'Aaah' as you exhale.",
+      "Feel the vibrations in your chest and face.",
+      "Experiment with different tones.",
+      "Notice how your body feels after a few minutes.",
+    ]},
+  { id: 31, cat: "Body Awareness", mins: 4, title: "Body Tracing",
+    why: "Slow, deliberate touch maps the body back into awareness.",
+    steps: [
+      "Start with a hand on your opposite shoulder.",
+      "Slowly trace down along your arm and body.",
+      "Repeat on the other side.",
+      "Notice how your hand feels as it moves.",
+      "Describe the sensations in your body in a few plain words.",
+    ]},
+  { id: 32, cat: "Body Awareness", mins: 4, title: "Eye Movement Reset",
+    why: "Slow, deliberate eye movement releases visual strain and softens vigilance.",
+    steps: [
+      "Sit comfortably and keep your head still.",
+      "Slowly move your eyes from left to right, then back, letting your gaze sweep gently across your field of vision.",
+      "Repeat several times, breathing slowly.",
+      "Then try moving your eyes up and down.",
+      "Check: do you feel more alert, calm, or focused afterward?",
+    ]},
+  { id: 33, cat: "Movement & Release", mins: 6, title: "Roll and Release",
+    why: "Gentle pressure along the back finds and softens tension you can't reach with attention alone.",
+    steps: [
+      "Lie down with knees bent and slowly roll a soft ball or foam roller under your back.",
+      "Move gently — no forcing into painful spots.",
+      "Notice what sensations arise as you roll.",
+      "Pause where you feel tension and breathe there for a few breaths.",
+      "Finish lying still, noticing the after-effects.",
+    ]},
+  { id: 34, cat: "Movement & Release", mins: 5, title: "Somatic Swaying",
+    why: "Gentle rocking is one of the body's oldest self-settling rhythms.",
+    steps: [
+      "Stand with your feet about hip-width apart.",
+      "Let your body slowly sway side to side, as if gently rocked by a breeze.",
+      "Keep your breathing calm; let your body find its own pace and rhythm.",
+      "Continue as long as it feels soothing.",
+      "Notice what shifts in your body as you sway — and what would make it more enjoyable.",
+    ]},
+  { id: 35, cat: "Sensory Grounding", mins: 4, title: "Trace the Edges",
+    why: "Following an object's outline gives wandering attention a slow, physical track to run on.",
+    steps: [
+      "Choose an item near you — a leaf, a book, a cup.",
+      "Using one finger, slowly trace around its outer edges.",
+      "Notice every curve, corner, and line.",
+      "Match your breath to the movement: inhale as your finger moves up, exhale as it goes down.",
+      "Notice how it feels to move slowly — which textures or shapes stand out most?",
+    ]},
+  { id: 36, cat: "Sensory Grounding", mins: 3, title: "Finger Taps",
+    why: "A small rhythmic task occupies restless energy and draws focus into the hands.",
+    steps: [
+      "Take a few slow breaths.",
+      "Tap your thumb against the tip of each finger of the same hand — index, middle, ring, pinky.",
+      "Repeat several times, paying attention to the sensations in your fingers.",
+      "Try creating a rhythm with the tapping.",
+      "Switch to the other hand if you wish.",
+    ]},
+  { id: 37, cat: "Sensory Grounding", mins: 3, title: "Palm Press & Release",
+    why: "The contrast between pressure and release wakes up sensation in the hands.",
+    steps: [
+      "Sit or stand comfortably.",
+      "Press the palms of your hands together with gentle pressure for a few seconds.",
+      "Slowly release and separate your hands.",
+      "Pay close attention to the sensation in your palms and fingers.",
+      "Notice: do your hands feel warmer, lighter, or tingling?",
+    ]},
+  { id: 38, cat: "Self-Soothing", mins: 4, title: "Butterfly Hug",
+    why: "Slow, alternating taps on the chest are a portable, well-known self-soothing rhythm.",
+    steps: [
+      "Cross your arms over your chest, resting your hands below your collarbones.",
+      "Tap your hands lightly on your upper chest in an alternating pattern.",
+      "Continue for a few minutes, finding a pace that feels soothing and grounding.",
+      "Notice what physical sensations you're aware of.",
+      "Offer yourself a positive or calming phrase as you tap.",
+    ]},
+  { id: 39, cat: "Self-Soothing", mins: 5, title: "Hug a Pillow",
+    why: "Soft, steady pressure against the chest signals safety to the nervous system.",
+    steps: [
+      "Sit or lie down in a quiet place.",
+      "Wrap your arms around a soft pillow or cushion and pull it close to your chest or belly.",
+      "Hold it as if you're giving or receiving a gentle hug.",
+      "Close your eyes and take deep, slow breaths.",
+      "Notice what feelings come up — does the pressure or softness help you feel settled?",
+    ]},
+  { id: 40, cat: "Self-Soothing", mins: 4, title: "Pendulum Hug",
+    why: "Hugging your knees and rocking combines containment with rhythm — two deep comforts at once.",
+    steps: [
+      "Sit and hug your knees toward your chest (a chair or the floor both work).",
+      "Begin rocking gently and rhythmically, like a slow pendulum.",
+      "Imagine you're comforting yourself.",
+      "Ask: what do I need to hear right now? Offer yourself those words.",
+      "Continue as long as it feels good.",
+    ]},
+  { id: 41, cat: "Self-Soothing", mins: 5, title: "Self-Compassion Break",
+    why: "Naming a hard moment and meeting it with kindness interrupts the habit of harshness.",
+    steps: [
+      "Place your hand on your heart (or wherever feels comforting — a self-hug also works).",
+      "Say to yourself: 'This is a moment of suffering.'",
+      "Then: 'Suffering is part of living.'",
+      "Then: 'May I be kind to myself.'",
+      "Reflect on one way you can take care of yourself today, and acknowledge your worth.",
+    ]},
+  { id: 42, cat: "Self-Soothing", mins: 3, title: "Hand on Heart",
+    why: "Feeling your own heartbeat under a warm palm is grounding and quietly reassuring.",
+    steps: [
+      "Place your hand over your heart and take a slow breath in.",
+      "Feel your heartbeat under your palm.",
+      "Exhale gently and let yourself relax.",
+      "Repeat for several breaths, focusing on the warmth and rhythm under your hand.",
+      "Ask: what emotion am I holding right now? What does my heart need to hear today?",
+    ]},
+  { id: 43, cat: "Sensory Grounding", mins: 5, title: "Barefoot Grounding",
+    why: "Bare feet on a natural surface deliver rich, steady sensation straight to the nervous system.",
+    steps: [
+      "Find a safe, natural surface — grass, sand, soil.",
+      "Stand or sit with your bare feet touching the ground.",
+      "Spread your toes slightly and settle in.",
+      "Take slow breaths, noticing the texture, temperature, and firmness beneath your feet.",
+      "Ask: does being barefoot help me feel more connected to my body or the earth?",
+    ]},
+  { id: 44, cat: "Movement & Release", mins: 4, title: "Wall Push",
+    why: "Pushing against something immovable gives restless energy somewhere to go — and leaves strength behind.",
+    steps: [
+      "Stand facing a wall; place your palms flat against it at shoulder height.",
+      "Step your feet back a little to feel a gentle lean.",
+      "Push firmly into the wall for a few seconds, then release.",
+      "Notice the resistance, and how your body feels as you engage and let go.",
+      "Repeat a few times. Do you feel more grounded or strong after the push?",
+    ]},
+  { id: 45, cat: "Movement & Release", mins: 3, title: "Facial Tension Release",
+    why: "The face holds more tension than almost anywhere — and rarely gets asked to let it go.",
+    steps: [
+      "Take a slow breath in.",
+      "Scrunch up your face — tensing eyes, forehead, mouth, and jaw.",
+      "Exhale slowly and let your facial muscles relax.",
+      "Repeat a few times, releasing as much tension as possible with each breath.",
+      "Notice what changes after relaxing your face — and where else in your body you could soften.",
+    ]},
+];
+const CPTSD_EXERCISES = [
+  // ---------------- UNDERSTAND ----------------
+  { id: 1, cat: "Understand", mins: 4, title: "What Complex PTSD Is",
+    why: "You can't work with something you can't name. A clear picture of C-PTSD replaces self-blame with understanding.",
+    steps: [
+      "C-PTSD develops from prolonged, repeated trauma — often ongoing abuse, neglect, or violence — rather than a single event.",
+      "It commonly affects sense of self, relationships, and the ability to regulate stress and emotion.",
+      "Core features include emotional dysregulation, a harsh inner critic, and feeling threatened or 'on guard' much of the time.",
+      "It is a natural response to overwhelming experience — not a weakness or a character flaw.",
+      "With support and skills, significant healing and recovery are genuinely possible.",
+    ]},
+  { id: 2, cat: "Understand", mins: 4, title: "C-PTSD vs PTSD",
+    why: "Understanding the difference helps you find the right tools — and lets go of the idea that you should already be 'over it'.",
+    steps: [
+      "PTSD often follows a single traumatic event; C-PTSD follows prolonged or repeated trauma.",
+      "Both can bring flashbacks, nightmares, hypervigilance, and avoidance.",
+      "C-PTSD adds deeper themes: shame, worthlessness, difficulty with trust and relationships, and a shaky sense of identity.",
+      "C-PTSD symptoms tend to be more interconnected and can take longer to shift — slow progress is still progress.",
+      "Notice: which of these fit your experience? Naming them is the first step, not a verdict.",
+    ]},
+  { id: 3, cat: "Understand", mins: 5, title: "Fight, Flight, Freeze, Fawn",
+    why: "Trauma responses aren't choices — they're your nervous system trying to keep you safe. Recognising yours reduces shame.",
+    steps: [
+      "Fight: irritability, anger, control, feeling on the defensive.",
+      "Flight: restlessness, over-working, anxiety, needing to escape.",
+      "Freeze: shutting down, numbness, spacing out, feeling stuck.",
+      "Fawn: people-pleasing, over-apologising, abandoning your own needs to keep the peace.",
+      "Ask: which response is most familiar to me? There's no wrong answer — this is information, not judgement.",
+    ]},
+  { id: 4, cat: "Understand", mins: 4, title: "Understanding Dissociation",
+    why: "Feeling unreal or disconnected is frightening if you don't know what it is. Named, it becomes something you can work with.",
+    steps: [
+      "Dissociation is a protective response — the mind creates distance from overwhelming experience.",
+      "It can look like spacing out, feeling foggy, feeling detached from your body, or losing track of time.",
+      "It is common after trauma and does not mean something is 'wrong with you'.",
+      "Grounding techniques (see the Grounding cards) are the main tool for gently coming back.",
+      "Notice your own early signs of dissociating — catching it early makes it easier to shift.",
+    ]},
+  { id: 5, cat: "Understand", mins: 4, title: "Emotional Numbing",
+    why: "Numbness isn't the absence of feeling — it's feeling turned down to survive. Understanding it makes room for it to thaw.",
+    steps: [
+      "Emotional numbing is a reduced ability to feel emotions — a common trauma response.",
+      "It can protect you from pain, but also dampen joy, connection, and motivation.",
+      "It is not permanent, and it is not you 'not caring'.",
+      "Small sensory and self-compassion practices help feeling return gradually and safely.",
+      "Be patient: pushing hard to 'feel more' usually backfires. Gentleness works better.",
+    ]},
+  { id: 6, cat: "Understand", mins: 4, title: "It Was Not Your Fault",
+    why: "Self-blame is one of trauma's cruelest tricks. This card is here to be re-read whenever you need it.",
+    steps: [
+      "You are not responsible for what happened to you.",
+      "You ARE allowed to take charge of your healing — those are two different things.",
+      "Survival responses that helped you then may cause trouble now; that's the injury, not a flaw.",
+      "Seeking help is a sign of strength, not weakness.",
+      "Read this line slowly: 'Having C-PTSD does not make me weak. It is a natural response to what I lived through.'",
+    ]},
+
+  // ---------------- GROUNDING ----------------
+  { id: 7, cat: "Grounding", mins: 5, title: "5-4-3-2-1 Senses",
+    why: "Anchoring in the five senses interrupts spirals and anxiety by giving your attention something real and present.",
+    steps: [
+      "Name 5 things you can see.",
+      "Name 4 things you can physically touch or feel.",
+      "Name 3 things you can hear.",
+      "Name 2 things you can smell.",
+      "Name 1 thing you can taste.",
+      "Take one slow breath and notice: you are here, now.",
+    ]},
+  { id: 8, cat: "Grounding", mins: 4, title: "Feet on the Floor",
+    why: "Physical grounding tells an alert nervous system that the ground is solid and the danger has passed.",
+    steps: [
+      "Place both feet flat on the floor, shoes off if you can.",
+      "Press down and feel all four corners of each foot.",
+      "Stomp gently a few times, or push your feet into the ground.",
+      "Notice the firmness holding you up — it isn't going anywhere.",
+      "Stay for ten slow breaths, attention resting in your feet.",
+    ]},
+  { id: 9, cat: "Grounding", mins: 5, breath: true, title: "Grounded Breathing",
+    why: "Slow, even breathing is the fastest lever you have for calming the body's alarm system.",
+    steps: [
+      "Inhale through your nose for a count of 4.",
+      "Hold gently for a count of 4 — no straining.",
+      "Exhale slowly for a count of 4.",
+      "Hold empty for a count of 4, then begin again.",
+      "Follow the circle for 6–8 rounds. Shorten the holds if they feel uncomfortable.",
+    ]},
+  { id: 10, cat: "Grounding", mins: 8, title: "Safe Place Visualization",
+    why: "A vivid mental refuge you can return to any time reduces the intensity of distressing emotions and memories.",
+    steps: [
+      "Sit or lie comfortably, close your eyes, take a few slow breaths.",
+      "Picture a place — real or imagined — where you feel completely safe and calm.",
+      "See the details: colours, light, objects around you.",
+      "Add the other senses: sounds, smells, the temperature on your skin.",
+      "Spend a few minutes simply being there, letting your body feel secure.",
+      "When ready, carry a little of that calm back and open your eyes.",
+    ]},
+  { id: 11, cat: "Grounding", mins: 4, title: "Cool Water Reset",
+    why: "A strong, safe sensation gives an overwhelmed nervous system something present to organise around.",
+    steps: [
+      "Run comfortably cool water over your hands and wrists for 30 seconds.",
+      "Track the sensation precisely: temperature, pressure, where it starts and fades.",
+      "Splash a little on your face if that feels okay.",
+      "Dry slowly, feeling the towel's texture.",
+      "Notice your breath — has it changed on its own?",
+    ]},
+  { id: 12, cat: "Grounding", mins: 5, title: "Build a Grounding Kit",
+    why: "Having comfort ready before you need it means it's there in the moments you can't think clearly.",
+    steps: [
+      "Touch: choose an object — a smooth stone, soft cloth, stress ball.",
+      "Sound: pick soothing music, nature sounds, or white noise.",
+      "Sight: save a calming photo or view you can look at.",
+      "Smell: keep a scent nearby — lotion, oil, tea, a candle.",
+      "Taste: a mint, gum, or a warm drink.",
+      "Gather these in one spot or your bag so they're ready when you need them.",
+    ]},
+
+  // ---------------- FLASHBACKS ----------------
+  { id: 13, cat: "Flashbacks", mins: 5, title: "This Is Then, This Is Now",
+    why: "A flashback is a memory being felt as if it's happening now. Naming it as the past helps your body catch up to safety.",
+    steps: [
+      "Say to yourself: 'I am having a flashback. This is a memory — it is not happening now.'",
+      "Remind yourself: the worst is over. It happened in the past. I survived.",
+      "Look around and name where you actually are, and today's date.",
+      "Feel your feet, your seat, the temperature of the room.",
+      "Tell your body: 'I am safe enough right now, in this moment.'",
+    ]},
+  { id: 14, cat: "Flashbacks", mins: 4, title: "Orient to the Present",
+    why: "Slowly looking around the room gives a frightened nervous system direct evidence that there's no threat here.",
+    steps: [
+      "Let your eyes move slowly around the space, unhurried.",
+      "Name out loud five ordinary objects you can see and their colours.",
+      "Turn your head as you look — slow and curious.",
+      "Notice one thing that tells you it's the present: a phone, a photo, today's clothes.",
+      "Watch for a spontaneous breath or swallow — a sign your system is settling.",
+    ]},
+  { id: 15, cat: "Flashbacks", mins: 5, title: "Coming Back From Dissociation",
+    why: "When you've drifted far from your body, strong and simple sensory anchors help you return gently.",
+    steps: [
+      "Press your feet down and your back into the chair — feel the support.",
+      "Hold something with texture or temperature; describe it in plain words.",
+      "Say your name, where you are, and what you were doing.",
+      "Move a little: wiggle fingers and toes, roll your shoulders.",
+      "Go slowly — there's no rush. You're finding your way back, one sense at a time.",
+    ]},
+  { id: 16, cat: "Flashbacks", mins: 6, title: "After a Flashback",
+    why: "Flashbacks are exhausting. What you do afterward helps your body learn that the storm passes and care follows.",
+    steps: [
+      "Acknowledge it: that was hard, and you got through it.",
+      "Offer yourself something soothing — a warm drink, a blanket, quiet.",
+      "Note (gently) what may have triggered it, without self-criticism.",
+      "Reach out to a safe person if you'd like company.",
+      "Rest. You don't need to 'perform' recovery — just tend to yourself.",
+    ]},
+
+  // ---------------- TRIGGERS ----------------
+  { id: 17, cat: "Triggers", mins: 6, title: "Map Your Triggers",
+    why: "Triggers feel random until you track them. Once you can see the pattern, you can prepare instead of being ambushed.",
+    steps: [
+      "Bring to mind a recent moment of sudden distress.",
+      "Name the trigger: a sound, place, smell, person, situation, or memory.",
+      "Rate its intensity right now, 0–10.",
+      "Notice what it reminded your body of — the link is often old, not about today.",
+      "Write it down in your notes so patterns can surface over time.",
+    ]},
+  { id: 18, cat: "Triggers", mins: 6, title: "Trigger → Response → Coping",
+    why: "Separating the trigger from your reaction from your options creates a pause — and in that pause is choice.",
+    steps: [
+      "Name the trigger.",
+      "Emotional response: what feeling showed up? (fear, anger, shame, panic)",
+      "Physical response: what did your body do? (racing heart, freezing, tension)",
+      "Behavioural response: what did you do or want to do?",
+      "Now choose one coping strategy to try next time this trigger appears.",
+    ]},
+  { id: 19, cat: "Triggers", mins: 7, title: "The ABC Model",
+    why: "It isn't only the event that upsets us, but our beliefs about it. The ABC model makes that chain visible so it can change.",
+    steps: [
+      "A — Activating event: describe what happened, plainly and specifically.",
+      "B — Beliefs: what thoughts or beliefs did the event trigger?",
+      "C — Consequences: what emotions and behaviours followed?",
+      "Look at B again: is that belief fully true, or an old alarm?",
+      "Try one more balanced belief and notice if C would shift with it.",
+    ]},
+  { id: 20, cat: "Triggers", mins: 5, title: "Build a Coping Menu",
+    why: "In a hard moment, decision-making is the first thing to go. A ready-made menu means you don't have to think, just pick.",
+    steps: [
+      "List 3 quick resets (grounding breath, cold water, step outside).",
+      "List 3 soothers (music, tea, blanket, a pet, a photo).",
+      "List 3 connections (people or places you can reach for).",
+      "List 3 distractions (a show, a puzzle, a walk, a game).",
+      "Keep this menu somewhere you'll find it when you need it most.",
+    ]},
+
+  // ---------------- REFRAME ----------------
+  { id: 21, cat: "Reframe", mins: 6, title: "Spot the Distortion",
+    why: "Trauma trains the mind into biased shortcuts. Just naming a distortion loosens its grip.",
+    steps: [
+      "Catch a distressing thought you're having right now.",
+      "Check it against common distortions: catastrophising, black-and-white thinking, mind reading, overgeneralising.",
+      "Also: discounting the positives, personalising, labelling, emotional reasoning.",
+      "Name which one (or more) is at play.",
+      "Say: 'This is a thinking pattern, not a fact.'",
+    ]},
+  { id: 22, cat: "Reframe", mins: 7, title: "Thought Record",
+    why: "Writing a thought down and examining it turns an automatic belief into something you can question and revise.",
+    steps: [
+      "Situation: what was happening?",
+      "Thought: what went through your mind?",
+      "Emotion: what did you feel, and how strongly (0–10)?",
+      "Evidence: what supports this thought — and what contradicts it?",
+      "Balanced thought: what's a fairer, kinder way to see it?",
+      "Re-rate the emotion. Even a small drop counts.",
+    ]},
+  { id: 23, cat: "Reframe", mins: 5, title: "Reframe the Thought",
+    why: "A reframe isn't forced positivity — it's a more accurate, compassionate reading of the same facts.",
+    steps: [
+      "Write the harsh thought exactly as it sounds (e.g. 'I'm a burden').",
+      "Ask: what would I say to a friend who believed this about themselves?",
+      "Find the grain of truth and the exaggeration inside the thought.",
+      "Write a replacement that is honest AND kind.",
+      "Example: 'I have people who care about me. It's okay to let them help.'",
+    ]},
+  { id: 24, cat: "Reframe", mins: 5, title: "Let the Thought Float By",
+    why: "Cognitive defusion means stepping back from a thought instead of being pulled under by it — you are the sky, not the weather.",
+    steps: [
+      "Pick a sticky, distressing thought.",
+      "Add the words: 'I'm noticing I'm having the thought that…'",
+      "Picture it on a cloud, a leaf on a stream, or a boat sailing off — watch it drift.",
+      "Let it grow smaller and pass, without arguing with it.",
+      "Notice: the thought came, and the thought can go. You remained.",
+    ]},
+  { id: 25, cat: "Reframe", mins: 4, title: "Coping Statement",
+    why: "Repeated, believable statements give the mind a steadier track to run on than the old fearful one.",
+    steps: [
+      "Pick one that lands today, or write your own:",
+      "'I survived before, and I can get through this. This feeling is temporary.'",
+      "'I am not defined by my past. I am allowed to heal at my own pace.'",
+      "'I am deserving of care, support, and understanding.'",
+      "Say it slowly, twice. Notice which words your body relaxes toward.",
+    ]},
+
+  // ---------------- REGULATE ----------------
+  { id: 26, cat: "Regulate", mins: 5, title: "Name the Emotion",
+    why: "Naming a feeling calms the brain's alarm centre. 'Name it to tame it' is a real, measurable effect.",
+    steps: [
+      "Pause and ask: what am I feeling right now?",
+      "Find the closest word: fear, anger, sadness, shame, loneliness, overwhelm.",
+      "Where do you feel it in your body?",
+      "Rate its intensity, 0–10.",
+      "Say: 'I'm feeling ___, and feelings move through. This one will too.'",
+    ]},
+  { id: 27, cat: "Regulate", mins: 5, title: "Distract & Self-Soothe",
+    why: "When emotion is too high to problem-solve, riding it out safely is the skill. Distraction and soothing buy time until the wave drops.",
+    steps: [
+      "Distract for a few minutes: a puzzle, a show, counting backward from 100, a task.",
+      "Then self-soothe through the senses: something to see, hear, smell, taste, touch.",
+      "Sight: a favourite photo. Sound: calming music. Touch: a warm bath or soft blanket.",
+      "Aim to lower the intensity, not erase it.",
+      "Once you're below a 5/10, decide if anything actually needs solving right now.",
+    ]},
+  { id: 28, cat: "Regulate", mins: 6, title: "Wise Mind",
+    why: "Between pure emotion and cold logic sits Wise Mind — the balanced place where good decisions get made.",
+    steps: [
+      "Bring to mind a situation you're wrestling with.",
+      "Emotional mind: what do your feelings say?",
+      "Rational mind: what do the facts and logic say?",
+      "Breathe, and let the two settle together.",
+      "Wise mind: what response honours both? What does your steadiest self say?",
+    ]},
+  { id: 29, cat: "Regulate", mins: 5, title: "Ride the Wave",
+    why: "Emotions rise, peak, and fall like waves. You don't have to act on the urge — you can surf it until it passes.",
+    steps: [
+      "Notice the emotion or urge building.",
+      "Picture it as a wave: it will crest and then fall.",
+      "Breathe slowly and let it rise without fighting or feeding it.",
+      "Remind yourself: no feeling lasts forever, and you don't have to act on it.",
+      "Stay with it and watch it recede. Note how long it actually took.",
+    ]},
+  { id: 30, cat: "Regulate", mins: 4, title: "Emotion Check-In",
+    why: "Regular check-ins rebuild the connection between you and your inner weather — the opposite of numbing.",
+    steps: [
+      "Stop wherever you are and scan inward.",
+      "Name one emotion present right now.",
+      "Note the situation or trigger, if there is one.",
+      "Rate the intensity, 0–10.",
+      "No fixing needed — just noticing counts as the practice.",
+    ]},
+
+  // ---------------- SELF-COMPASSION ----------------
+  { id: 31, cat: "Self-Compassion", mins: 5, title: "Self-Compassion Break",
+    why: "Meeting a hard moment with kindness — instead of harshness — is a skill that rewires how you treat yourself.",
+    steps: [
+      "Place a hand on your heart, or wherever feels comforting.",
+      "Say: 'This is a moment of suffering.'",
+      "Say: 'Suffering is part of being human — I'm not alone in this.'",
+      "Say: 'May I be kind to myself right now.'",
+      "Name one small way you'll care for yourself today.",
+    ]},
+  { id: 32, cat: "Self-Compassion", mins: 3, title: "Hand on Heart",
+    why: "Warm, steady touch and your own heartbeat are quietly reassuring — the body reads them as safety.",
+    steps: [
+      "Place a hand over your heart and take a slow breath in.",
+      "Feel your heartbeat and the warmth of your palm.",
+      "Exhale gently and let your shoulders drop.",
+      "Repeat for several breaths.",
+      "Ask softly: what does my heart need to hear today?",
+    ]},
+  { id: 33, cat: "Self-Compassion", mins: 8, title: "Letter to Your Inner Child",
+    why: "The younger you who lived through this still needs to hear that they were not to blame, and that they are loved now.",
+    steps: [
+      "Picture yourself at the age things were hardest.",
+      "Write a few lines to them, starting 'Dear little one…'",
+      "Tell them it wasn't their fault.",
+      "Tell them what they needed to hear then and didn't.",
+      "Let them know you're here now, and you've got them.",
+    ]},
+  { id: 34, cat: "Self-Compassion", mins: 5, title: "Talk to Yourself Like a Friend",
+    why: "Most of us are far crueler to ourselves than we'd ever be to someone we love. This practice closes that gap.",
+    steps: [
+      "Bring to mind something you're being hard on yourself about.",
+      "Notice the tone of your inner voice — is it harsh?",
+      "Now imagine a dear friend said the exact same thing about themselves.",
+      "What would you say to them? Say it out loud.",
+      "Offer those same words to yourself.",
+    ]},
+  { id: 35, cat: "Self-Compassion", mins: 4, title: "Comforting Touch",
+    why: "Soothing physical contact releases calming chemistry — a self-soothing tool that's always with you.",
+    steps: [
+      "Choose what feels right: hand on heart, a hand on your cheek, or a gentle self-hug.",
+      "Wrap your arms around yourself, or hug a cushion to your chest.",
+      "Feel the warmth and steady pressure.",
+      "Breathe slowly and let your body register the comfort.",
+      "Offer yourself a kind phrase as you hold.",
+    ]},
+
+  // ---------------- RECOVERY ----------------
+  { id: 36, cat: "Recovery", mins: 6, title: "Map Your Resilience",
+    why: "Trauma narrows attention onto what's wrong. Deliberately naming your strengths rebuilds a fuller, truer picture.",
+    steps: [
+      "Name one personal strength that's helped you survive.",
+      "Name one skill or ability you're glad to have.",
+      "Name one person or place that supports you.",
+      "Name one thing that gives you meaning or hope.",
+      "Notice: these are resources you already carry.",
+    ]},
+  { id: 37, cat: "Recovery", mins: 5, title: "Safe People",
+    why: "Recovery happens in connection. Knowing exactly who your safe people are makes reaching out possible on hard days.",
+    steps: [
+      "Bring to mind people you feel steadier around.",
+      "What makes them feel safe — do they listen, respect limits, stay calm?",
+      "Choose one you could reach out to this week.",
+      "Decide what you might say or ask for.",
+      "Note them in one place, so the list is ready when you need it.",
+    ]},
+  { id: 38, cat: "Recovery", mins: 4, title: "Three Good Things",
+    why: "Training attention toward the good — even small good — gradually counterbalances the brain's trauma-set negativity.",
+    steps: [
+      "Recall the day so far.",
+      "Name one thing, however small, that was okay or pleasant.",
+      "Name a second.",
+      "Name a third.",
+      "For one of them, note your part in making it happen.",
+    ]},
+  { id: 39, cat: "Recovery", mins: 6, title: "Timeline of Healing",
+    why: "When progress feels invisible, a timeline shows how far you've actually come — and that turning points are real.",
+    steps: [
+      "Think back over your healing so far, not the trauma itself.",
+      "Name one moment you got through that you weren't sure you would.",
+      "Name one skill or insight you have now that you didn't before.",
+      "Name one small step forward from the past year.",
+      "Set one gentle intention for the next step.",
+    ]},
+  { id: 40, cat: "Recovery", mins: 7, title: "Rescript a Nightmare",
+    why: "Rehearsing a new, safer ending to a recurring nightmare can, over time, loosen its hold on your sleep.",
+    steps: [
+      "Briefly note the recurring nightmare and the feeling it leaves.",
+      "Choose a new ending that brings safety, resolution, or empowerment.",
+      "Rewrite it: add your own strength, a helper, or an escape.",
+      "Close your eyes and vividly picture the new version.",
+      "Practise it by day. Be patient, and seek support if it stays distressing.",
+    ]},
+  { id: 41, cat: "Recovery", mins: 8, title: "My Safety Plan",
+    why: "A plan made when you're steady is a gift to yourself for when you're not. It keeps care within reach on the hardest days.",
+    steps: [
+      "Warning signs: what tells you a hard patch is building?",
+      "Immediate actions: which grounding or soothing tools help fastest?",
+      "Safe people: who can you contact, and how?",
+      "Make your space safer: reduce access to anything you might use to harm yourself.",
+      "Keep crisis numbers saved in your phone now, before you need them.",
+      "If you're ever in danger, contact a crisis line or emergency services — reaching out is strength, not failure.",
+    ]},
+];
+
+const {useState, useEffect, useMemo} = React;
+
+const DEFAULT_DISCLAIMER = "Self-help exercises — not therapy or medical advice. Move within a comfortable range and skip anything that causes pain or dizziness.\nYour journal is stored only in this browser, on this device.";
+
+const DECKS = {
+  cbt: {
+    label: "CBT Deck",
+    tagline: "One card · one exercise · a few minutes",
+    exercises: CBT_EXERCISES,
+    scaleLabel: ["Mood before (0 low – 10 high)", "Mood after (0 low – 10 high)"],
+    scaleWord: "Mood",
+    bg: "#F2F0EB", card: "#FDFCF9", border: "#E3DFD4", ink: "#2B2B28",
+    dim: "#8A867C", mid: "#55524A", soft: "#F4F2EC", input: "#F7F5EF",
+    colors: {
+      "Cognitive Restructuring": "#4E6E8E", "Behavioral Activation": "#7A8450",
+      "Exposure & Testing": "#9A6A4F", "Grounding & Emotion": "#5E7F78",
+      "Self-Monitoring": "#7A6690",
+    },
+  },
+  somatic: {
+    label: "Somatic Deck",
+    tagline: "One card · one practice · back into the body",
+    exercises: SOMATIC_EXERCISES,
+    scaleLabel: ["How settled do you feel? (0 restless – 10 calm)", "And now? (0 restless – 10 calm)"],
+    scaleWord: "Settled",
+    bg: "#ECEFE8", card: "#FBFCF8", border: "#DDE0D4", ink: "#272B24",
+    dim: "#7E7A70", mid: "#4E5147", soft: "#F1F3EA", input: "#F5F7EF",
+    colors: {
+      "Breathwork": "#5B7C8D", "Body Awareness": "#6E7F5A", "Movement & Release": "#8D6E5B",
+      "Sensory Grounding": "#5D8078", "Mindful Attention": "#75688C", "Self-Soothing": "#96707E",
+    },
+  },
+  cptsd: {
+    label: "C-PTSD Workbook",
+    tagline: "One card · one practice · steady steps through wellness",
+    exercises: CPTSD_EXERCISES,
+    scaleLabel: ["How settled do you feel? (0 overwhelmed – 10 grounded)", "And now? (0 overwhelmed – 10 grounded)"],
+    scaleWord: "Settled",
+    disclaimer: "Gentle self-help drawn from trauma and C-PTSD education resources — not therapy or medical advice. Go at your own pace and stop if a practice feels overwhelming. If you're in crisis or thinking of harming yourself, please contact a crisis line or emergency services — reaching out is a sign of strength.\nYour journal is stored only in this browser, on this device.",
+    bg: "#EAEEF0", card: "#FBFCFD", border: "#D6DDE0", ink: "#232A2D",
+    dim: "#7C848A", mid: "#48525A", soft: "#EDF1F3", input: "#F3F6F7",
+    colors: {
+      "Understand": "#4F6D7A", "Grounding": "#5D8078", "Flashbacks": "#8D6E5B",
+      "Triggers": "#B0894F", "Reframe": "#75688C", "Regulate": "#5B7C8D",
+      "Self-Compassion": "#96707E", "Recovery": "#6E8B5A",
+    },
+  },
+};
+
+const storeKey = (id) => "deck-journal-" + id + "-v1";
+function fmtDate(iso){ try { return new Date(iso).toLocaleString(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}); } catch(e){ return iso; } }
+
+function BreathPacer({ color }) {
+  return (
+    <div style={{ display:"flex", flexDirection:"column", alignItems:"center", margin:"6px 0 16px" }}>
+      <div className="pacer" aria-hidden style={{ width:72, height:72, borderRadius:"50%", background:color+"22", border:"2px solid "+color }} />
+      <div style={{ fontSize:11.5, color:"#7E7A70", marginTop:8, letterSpacing:"0.08em", textTransform:"uppercase" }}>Breathe with the circle</div>
+    </div>
+  );
+}
+
+function App(){
+  const [deckId,setDeckId]=useState("cbt");
+  const deck=DECKS[deckId]; const t=deck;
+  const [view,setView]=useState("deck");
+  const [cat,setCat]=useState("All");
+  const [current,setCurrent]=useState(null);
+  const [done,setDone]=useState({});
+  const [note,setNote]=useState("");
+  const [before,setBefore]=useState(null);
+  const [after,setAfter]=useState(null);
+  const [historyIds,setHistoryIds]=useState([]);
+  const [entries,setEntries]=useState([]);
+  const [saveState,setSaveState]=useState("idle");
+
+  const cats=useMemo(()=>["All",...Array.from(new Set(deck.exercises.map(e=>e.cat)))],[deckId]);
+  const pool=useMemo(()=>deck.exercises.filter(e=>cat==="All"||e.cat===cat),[deckId,cat]);
+
+  useEffect(()=>{ try{ const raw=localStorage.getItem(storeKey(deckId)); setEntries(raw?JSON.parse(raw):[]);}catch(e){ setEntries([]); } },[deckId]);
+
+  const switchDeck=(id)=>{ if(id===deckId) return; setDeckId(id); setCat("All"); setCurrent(null); setDone({}); setNote(""); setBefore(null); setAfter(null); setHistoryIds([]); setSaveState("idle"); setView("deck"); };
+
+  const draw=()=>{
+    let cand=pool.filter(e=>!historyIds.slice(-Math.min(4,pool.length-1)).includes(e.id));
+    if(cand.length===0) cand=pool;
+    const pick=cand[Math.floor(Math.random()*cand.length)];
+    setCurrent(pick); setDone({}); setNote(""); setBefore(null); setAfter(null); setSaveState("idle");
+    setHistoryIds(h=>[...h,pick.id].slice(-10));
+  };
+
+  const toggleStep=(i)=>setDone(d=>({...d,[i]:!d[i]}));
+  const completed=current?current.steps.filter((_,i)=>done[i]).length:0;
+  const allDone=current&&completed===current.steps.length;
+  const accent=current?deck.colors[current.cat]:Object.values(deck.colors)[0];
+  const delta=(b,a)=>(b==null||a==null)?null:a-b;
+
+  const saveEntry=()=>{
+    if(!current) return; setSaveState("saving");
+    const entry={ ts:new Date().toISOString(), title:current.title, cat:current.cat, before, after, note:note.trim() };
+    const next=[entry,...entries].slice(0,500);
+    try{ localStorage.setItem(storeKey(deckId),JSON.stringify(next)); setEntries(next); setSaveState("saved"); }
+    catch(e){ setSaveState("error"); }
+  };
+  const deleteEntry=(ts)=>{ const next=entries.filter(e=>e.ts!==ts); try{ localStorage.setItem(storeKey(deckId),JSON.stringify(next)); setEntries(next);}catch(e){} };
+
+  const Scale=({value,onChange,label})=>(
+    <div style={{ marginBottom:10 }}>
+      <div style={{ fontSize:12, letterSpacing:"0.1em", textTransform:"uppercase", color:t.dim, marginBottom:6 }}>{label}</div>
+      <div style={{ display:"flex", gap:4, flexWrap:"wrap" }}>
+        {Array.from({length:11},(_, n)=>(
+          <button key={n} onClick={()=>onChange(n)} aria-pressed={value===n}
+            style={{ width:34, height:34, borderRadius:8, cursor:"pointer",
+              border:"1px solid "+(value===n?accent:t.border), background:value===n?accent:t.card,
+              color:value===n?"#fff":t.mid, fontSize:13, fontWeight:600, fontFamily:"inherit" }}>{n}</button>
+        ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ minHeight:"100vh", background:t.bg, fontFamily:"'Avenir Next','Segoe UI',system-ui,sans-serif", color:t.ink, padding:"0 16px 48px" }}>
+      <div style={{ maxWidth:640, margin:"0 auto" }}>
+
+        <div style={{ display:"flex", flexWrap:"wrap", justifyContent:"center", gap:8, padding:"26px 0 6px" }}>
+          {Object.entries(DECKS).map(([id,d])=>(
+            <button key={id} onClick={()=>switchDeck(id)}
+              style={{ padding:"8px 16px", borderRadius:999, cursor:"pointer", fontFamily:"inherit", fontSize:14, fontWeight:700,
+                background:deckId===id?t.ink:"transparent", color:deckId===id?t.bg:t.mid,
+                border:"1px solid "+(deckId===id?t.ink:t.border) }}>{d.label}</button>
+          ))}
+        </div>
+
+        <header style={{ padding:"14px 0 8px", textAlign:"center" }}>
+          <div style={{ fontSize:11, letterSpacing:"0.22em", textTransform:"uppercase", color:t.dim, marginBottom:10 }}>{deck.tagline}</div>
+          <h1 style={{ fontFamily:"Georgia,'Times New Roman',serif", fontWeight:500, fontSize:"clamp(28px,6vw,40px)", margin:0, lineHeight:1.15 }}>The {deck.label}</h1>
+        </header>
+
+        <div style={{ display:"flex", justifyContent:"center", gap:8, margin:"14px 0 20px" }}>
+          {[["deck","Deck"],["journal","Journal"+(entries.length?" · "+entries.length:"")]].map(([k,label])=>(
+            <button key={k} onClick={()=>setView(k)}
+              style={{ border:"none", borderBottom:"2px solid "+(view===k?t.ink:"transparent"), background:"transparent",
+                color:view===k?t.ink:t.dim, padding:"6px 10px", fontSize:15, fontWeight:600, cursor:"pointer", fontFamily:"inherit" }}>{label}</button>
+          ))}
+        </div>
+
+        {view==="deck" && (
+          <React.Fragment>
+            <div style={{ display:"flex", flexWrap:"wrap", gap:8, justifyContent:"center", marginBottom:20 }}>
+              {cats.map(c=>(
+                <button key={c} onClick={()=>setCat(c)}
+                  style={{ border:"1px solid "+(cat===c?t.ink:t.border), background:cat===c?t.ink:"transparent",
+                    color:cat===c?t.bg:t.mid, borderRadius:999, padding:"7px 14px", fontSize:13, cursor:"pointer", fontFamily:"inherit" }}>{c}</button>
+              ))}
+            </div>
+
+            <div style={{ textAlign:"center", marginBottom:26 }}>
+              <button onClick={draw}
+                style={{ background:accent, color:"#fff", border:"none", borderRadius:12, padding:"14px 34px",
+                  fontSize:16, fontWeight:600, cursor:"pointer", fontFamily:"inherit", boxShadow:"0 3px 0 rgba(39,43,36,0.25)" }}>
+                {current?"Draw another card":"Draw a card"}
+              </button>
+              <div style={{ fontSize:12, color:t.dim, marginTop:8 }}>{pool.length} cards in this stack</div>
+            </div>
+
+            {current && (
+              <div style={{ background:t.card, borderRadius:16, border:"1px solid "+t.border, boxShadow:"0 10px 24px rgba(39,43,36,0.08)", overflow:"hidden" }}>
+                <div style={{ height:6, background:accent }} />
+                <div style={{ padding:"22px 22px 26px" }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+                    <span style={{ fontSize:11, letterSpacing:"0.14em", textTransform:"uppercase", color:accent, fontWeight:700 }}>{current.cat}</span>
+                    <span style={{ fontSize:12, color:t.dim }}>~{current.mins} min</span>
+                  </div>
+                  <h2 style={{ fontFamily:"Georgia,serif", fontWeight:500, fontSize:26, margin:"0 0 8px", lineHeight:1.2 }}>{current.title}</h2>
+                  <p style={{ fontSize:14.5, lineHeight:1.55, color:t.mid, margin:"0 0 16px", fontStyle:"italic" }}>{current.why}</p>
+                  {current.breath && <BreathPacer color={accent} />}
+                  <Scale value={before} onChange={setBefore} label={deck.scaleLabel[0]} />
+                  <div style={{ display:"flex", flexDirection:"column", gap:6, marginTop:14 }}>
+                    {current.steps.map((s,i)=>(
+                      <button key={i} onClick={()=>toggleStep(i)} aria-pressed={!!done[i]}
+                        style={{ display:"flex", gap:12, alignItems:"flex-start", textAlign:"left",
+                          background:done[i]?t.soft:"transparent", border:"none", borderRadius:10, padding:"10px", cursor:"pointer", fontFamily:"inherit" }}>
+                        <span aria-hidden style={{ flexShrink:0, width:20, height:20, marginTop:1, borderRadius:6,
+                          border:"1.5px solid "+(done[i]?accent:t.border), background:done[i]?accent:"transparent",
+                          color:"#fff", fontSize:13, lineHeight:"18px", textAlign:"center" }}>{done[i]?"✓":""}</span>
+                        <span style={{ fontSize:15, lineHeight:1.5, color:done[i]?t.dim:t.ink, textDecoration:done[i]?"line-through":"none" }}>{s}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <div style={{ margin:"14px 0", fontSize:12.5, color:t.dim }}>
+                    {allDone?"All steps done — nice work.":completed+" of "+current.steps.length+" steps done"}
+                  </div>
+                  {allDone && <Scale value={after} onChange={setAfter} label={deck.scaleLabel[1]} />}
+                  {before!=null && after!=null && (
+                    <div style={{ fontSize:14, padding:"10px 12px", borderRadius:10, background:t.soft, marginBottom:12 }}>
+                      {delta(before,after)>0 && (deck.scaleWord+" shifted +"+delta(before,after)+" — worth noting what helped.")}
+                      {delta(before,after)===0 && "No shift this time — the practice still counts."}
+                      {delta(before,after)<0 && "A dip can happen when attention meets what's really there. Go gently."}
+                    </div>
+                  )}
+                  <label htmlFor="pad" style={{ fontSize:12, letterSpacing:"0.1em", textTransform:"uppercase", color:t.dim }}>Notes (optional)</label>
+                  <textarea id="pad" value={note} onChange={e=>setNote(e.target.value)} placeholder="What came up?" rows={4}
+                    style={{ width:"100%", boxSizing:"border-box", marginTop:8, background:t.input, border:"1px solid "+t.border,
+                      borderRadius:10, padding:12, fontSize:15, lineHeight:1.5, fontFamily:"inherit", color:t.ink, resize:"vertical" }} />
+                  <div style={{ display:"flex", alignItems:"center", gap:12, marginTop:12 }}>
+                    <button onClick={saveEntry} disabled={saveState==="saving"||saveState==="saved"}
+                      style={{ background:saveState==="saved"?t.dim:t.ink, color:t.bg, border:"none", borderRadius:10,
+                        padding:"11px 22px", fontSize:14.5, fontWeight:600, cursor:saveState==="saved"?"default":"pointer", fontFamily:"inherit" }}>
+                      {saveState==="saving"?"Saving…":saveState==="saved"?"Saved to journal ✓":"Save to journal"}
+                    </button>
+                    {saveState==="error" && <span style={{ fontSize:13, color:"#94534B" }}>Couldn't save. Try again.</span>}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {!current && (
+              <div style={{ textAlign:"center", padding:"40px 20px", border:"1.5px dashed "+t.border, borderRadius:16, color:t.dim, fontSize:15, lineHeight:1.5 }}>
+                {deck.exercises.length} cards across {cats.length-1} categories. Filter a category, or draw from the whole deck.
+              </div>
+            )}
+          </React.Fragment>
+        )}
+
+        {view==="journal" && (
+          <div>
+            {entries.length===0 && (
+              <div style={{ textAlign:"center", padding:"40px 20px", border:"1.5px dashed "+t.border, borderRadius:16, color:t.dim, fontSize:15 }}>
+                Nothing saved yet. Work through a card in the Deck tab and tap "Save to journal".
+              </div>
+            )}
+            {entries.map(e=>{
+              const d=delta(e.before,e.after); const c=deck.colors[e.cat]||t.ink;
+              return (
+                <div key={e.ts} style={{ background:t.card, border:"1px solid "+t.border, borderRadius:14, padding:"16px 18px", marginBottom:12 }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"baseline", gap:10, flexWrap:"wrap" }}>
+                    <div>
+                      <span style={{ fontSize:11, letterSpacing:"0.12em", textTransform:"uppercase", color:c, fontWeight:700 }}>{e.cat}</span>
+                      <div style={{ fontFamily:"Georgia,serif", fontSize:18, marginTop:2 }}>{e.title}</div>
+                    </div>
+                    <span style={{ fontSize:12, color:t.dim }}>{fmtDate(e.ts)}</span>
+                  </div>
+                  {(e.before!=null||e.after!=null) && (
+                    <div style={{ fontSize:13.5, color:t.mid, marginTop:8 }}>
+                      {deck.scaleWord}: {e.before!=null?e.before:"–"} → {e.after!=null?e.after:"–"}{d!=null?(" ("+(d>0?"+":"")+d+")"):""}
+                    </div>
+                  )}
+                  {e.note && <div style={{ fontSize:14.5, lineHeight:1.55, marginTop:8, whiteSpace:"pre-wrap" }}>{e.note}</div>}
+                  <button onClick={()=>deleteEntry(e.ts)}
+                    style={{ marginTop:10, background:"transparent", border:"none", color:t.dim, fontSize:12.5, cursor:"pointer", textDecoration:"underline", padding:0, fontFamily:"inherit" }}>Delete entry</button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        <footer style={{ marginTop:28, fontSize:12, lineHeight:1.6, color:t.dim, textAlign:"center", whiteSpace:"pre-line" }}>
+          {deck.disclaimer || DEFAULT_DISCLAIMER}
+        </footer>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+
+</script>
+</body>
+</html>
