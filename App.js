@@ -540,11 +540,9 @@ const styles = StyleSheet.create({
   },
   h1: {
     fontSize: 32, fontWeight: "500", textAlign: "center",
-    fontFamily: Platform.OS === "ios" ? "Georgia" : "serif",
   },
   h2: {
     fontSize: 25, fontWeight: "500", marginBottom: 6,
-    fontFamily: Platform.OS === "ios" ? "Georgia" : "serif",
   },
   smallLabel: {
     fontSize: 12, letterSpacing: 1, textTransform: "uppercase", marginBottom: 6,
