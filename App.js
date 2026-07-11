@@ -526,6 +526,10 @@ export default function App() {
           emergency services — reaching out is a sign of strength.{"\n"}
           Your journal is stored only on this device.
         </Text>
+
+        <Text style={{ fontSize: 11, color: T.dim, textAlign: "center", marginTop: 10 }}>
+          © 2026 FC · All rights reserved
+        </Text>
       </ScrollView>
     </SafeAreaView>
   );
