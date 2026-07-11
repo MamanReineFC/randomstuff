@@ -2,7 +2,7 @@
 
 A gentle self-help app that draws a single wellness card — a short, guided practice — whenever you need one. Each card is a few minutes long and pulls from three traditions: **CBT**, **Somatic**, and **C-PTSD** work.
 
-**Live app:** https://mamainreine.github.io/randomstuff/
+**Live app:** https://mamanreine.github.io/randomstuff/
 
 Works in any browser, on phone or computer — no install needed.
 
