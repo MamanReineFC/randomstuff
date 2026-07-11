@@ -30,37 +30,58 @@ const SOURCES = {
   },
 };
 
-// ---------- Unified category taxonomy (13, alphabetical) ----------
-// Old deck categories are remapped onto this list.
+// ---------- Four simplified categories ----------
+// Every card is mapped onto one of four groups, then each group is capped
+// so the deck stays focused.
+const CATS = ["CBT", "Somatic", "Grounding/Self-Compassion", "Mindfulness/Breathing"];
 const CAT_MAP = {
+  // CBT
+  "Cognitive Restructuring": "CBT",
+  "Self-Monitoring": "CBT",
+  "Behavioral Activation": "CBT",
+  "Understand": "CBT",
+  "Reframe": "CBT",
+  "Exposure & Testing": "CBT",
   // Somatic
-  "Mindful Attention": "Mindfulness",
-  // C-PTSD
-  "Understand": "Reframing",
-  "Grounding": "Sensory Grounding",
-  "Flashbacks": "Regulate",
-  "Triggers": "Regulate",
-  "Reframe": "Reframing",
-  "Recovery": "Self-Compassion",
-  // Fallback for any card not covered by a per-card override below
-  "Grounding & Emotion": "Regulate",
+  "Body Awareness": "Somatic",
+  "Movement & Release": "Somatic",
+  // Grounding / Self-Compassion
+  "Sensory Grounding": "Grounding/Self-Compassion",
+  "Grounding": "Grounding/Self-Compassion",
+  "Grounding & Emotion": "Grounding/Self-Compassion",
+  "Triggers": "Grounding/Self-Compassion",
+  "Flashbacks": "Grounding/Self-Compassion",
+  "Self-Compassion": "Grounding/Self-Compassion",
+  "Self-Soothing": "Grounding/Self-Compassion",
+  "Recovery": "Grounding/Self-Compassion",
+  // Mindfulness / Breathing
+  "Breathwork": "Mindfulness/Breathing",
+  "Mindful Attention": "Mindfulness/Breathing",
+  "Regulate": "Mindfulness/Breathing",
 };
-// Per-card overrides where an old category splits across new ones
-// (CBT's "Grounding & Emotion" cards go to their true homes)
+// Per-card overrides where a card fits a group better than its raw category
 const CARD_CAT = {
-  "cbt-13": "Sensory Grounding",   // 5-4-3-2-1 Grounding
-  "cbt-14": "Breathwork",          // Paced Breathing (4-6)
-  "cbt-15": "Regulate",            // Emotion Labeling
-  "cbt-16": "Regulate",            // Worry Time Appointment
+  "cbt-14": "Mindfulness/Breathing",  // Paced Breathing (4-6)
 };
 const mapCat = (uid, cat) => CARD_CAT[uid] || CAT_MAP[cat] || cat;
 
-// One card pool, each exercise tagged with its source and remapped category
-const ALL_EXERCISES = [
-  ...CBT_EXERCISES.map(e => ({ ...e, source: "cbt", uid: `cbt-${e.id}` })),
-  ...SOMATIC_EXERCISES.map(e => ({ ...e, source: "somatic", uid: `som-${e.id}` })),
-  ...CPTSD_EXERCISES.map(e => ({ ...e, source: "cptsd", uid: `cpt-${e.id}` })),
-].map(e => ({ ...e, cat: mapCat(e.uid, e.cat) }));
+// Max cards kept per category
+const CAT_CAP = 25;
+
+// One card pool: tag each exercise with its source and simplified category,
+// then cap each category so none is overloaded.
+const ALL_EXERCISES = (() => {
+  const tagged = [
+    ...CBT_EXERCISES.map(e => ({ ...e, source: "cbt", uid: `cbt-${e.id}` })),
+    ...SOMATIC_EXERCISES.map(e => ({ ...e, source: "somatic", uid: `som-${e.id}` })),
+    ...CPTSD_EXERCISES.map(e => ({ ...e, source: "cptsd", uid: `cpt-${e.id}` })),
+  ].map(e => ({ ...e, cat: mapCat(e.uid, e.cat) }));
+  const counts = {};
+  return tagged.filter(e => {
+    counts[e.cat] = (counts[e.cat] || 0) + 1;
+    return counts[e.cat] <= CAT_CAP;
+  });
+})();
 
 // ---------- Unified theme ----------
 const T = {
@@ -68,21 +89,12 @@ const T = {
   dim: "#82837A", mid: "#4F534B", soft: "#F2F3EC", input: "#F6F7F1",
 };
 
-// Accent colors for the 13 categories
+// Accent color for each of the four categories
 const CAT_COLOR = {
-  "Behavioral Activation": "#7A8450",
-  "Body Awareness": "#6E7F5A",
-  "Breathwork": "#5B7C8D",
-  "Cognitive Restructuring": "#4E6E8E",
-  "Exposure & Testing": "#9A6A4F",
-  "Mindfulness": "#75688C",
-  "Movement & Release": "#8D6E5B",
-  "Reframing": "#B0894F",
-  "Regulate": "#4F6D7A",
-  "Self-Compassion": "#8E6B77",
-  "Self-Monitoring": "#7A6690",
-  "Self-Soothing": "#96707E",
-  "Sensory Grounding": "#5D8078",
+  "CBT": "#4E6E8E",
+  "Somatic": "#6E7F5A",
+  "Grounding/Self-Compassion": "#8E6B77",
+  "Mindfulness/Breathing": "#5B7C8D",
 };
 
 const STORE_KEY = "wellness-journal-v1";
@@ -224,7 +236,7 @@ function CardTimer({ minutes, accent }) {
 
 export default function App() {
   const [view, setView] = useState("deck");
-  const [cat, setCat] = useState("All");
+  const [cat, setCat] = useState("CBT");
   const [current, setCurrent] = useState(null);
   const [done, setDone] = useState({});
   const [note, setNote] = useState("");
@@ -234,14 +246,11 @@ export default function App() {
   const [entries, setEntries] = useState([]);
   const [saveState, setSaveState] = useState("idle");
 
-  // Categories — alphabetical
-  const cats = useMemo(() => {
-    const list = ALL_EXERCISES.map(e => e.cat);
-    return ["All", ...Array.from(new Set(list)).sort((a, b) => a.localeCompare(b))];
-  }, []);
+  // The four fixed categories
+  const cats = useMemo(() => CATS, []);
 
   const pool = useMemo(
-    () => ALL_EXERCISES.filter(e => cat === "All" || e.cat === cat),
+    () => ALL_EXERCISES.filter(e => e.cat === cat),
     [cat]
   );
 
