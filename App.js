@@ -33,7 +33,7 @@ const SOURCES = {
 // ---------- Four simplified categories ----------
 // Every card is mapped onto one of four groups, then each group is capped
 // so the deck stays focused.
-const CATS = ["All", "CBT", "Somatic", "Grounding/Self-Compassion", "Mindfulness/Breathing"];
+const CATS = ["All", "CBT", "Somatic", "Grounding", "Mindfulness"];
 const CAT_MAP = {
   // CBT
   "Cognitive Restructuring": "CBT",
@@ -46,22 +46,22 @@ const CAT_MAP = {
   "Body Awareness": "Somatic",
   "Movement & Release": "Somatic",
   // Grounding / Self-Compassion
-  "Sensory Grounding": "Grounding/Self-Compassion",
-  "Grounding": "Grounding/Self-Compassion",
-  "Grounding & Emotion": "Grounding/Self-Compassion",
-  "Triggers": "Grounding/Self-Compassion",
-  "Flashbacks": "Grounding/Self-Compassion",
-  "Self-Compassion": "Grounding/Self-Compassion",
-  "Self-Soothing": "Grounding/Self-Compassion",
-  "Recovery": "Grounding/Self-Compassion",
+  "Sensory Grounding": "Grounding",
+  "Grounding": "Grounding",
+  "Grounding & Emotion": "Grounding",
+  "Triggers": "Grounding",
+  "Flashbacks": "Grounding",
+  "Self-Compassion": "Grounding",
+  "Self-Soothing": "Grounding",
+  "Recovery": "Grounding",
   // Mindfulness / Breathing
-  "Breathwork": "Mindfulness/Breathing",
-  "Mindful Attention": "Mindfulness/Breathing",
-  "Regulate": "Mindfulness/Breathing",
+  "Breathwork": "Mindfulness",
+  "Mindful Attention": "Mindfulness",
+  "Regulate": "Mindfulness",
 };
 // Per-card overrides where a card fits a group better than its raw category
 const CARD_CAT = {
-  "cbt-14": "Mindfulness/Breathing",  // Paced Breathing (4-6)
+  "cbt-14": "Mindfulness",  // Paced Breathing (4-6)
 };
 const mapCat = (uid, cat) => CARD_CAT[uid] || CAT_MAP[cat] || cat;
 
@@ -94,8 +94,8 @@ const CAT_COLOR = {
   "All": "#5E6B66",
   "CBT": "#4E6E8E",
   "Somatic": "#6E7F5A",
-  "Grounding/Self-Compassion": "#8E6B77",
-  "Mindfulness/Breathing": "#5B7C8D",
+  "Grounding": "#8E6B77",
+  "Mindfulness": "#5B7C8D",
 };
 
 const STORE_KEY = "wellness-journal-v1";
